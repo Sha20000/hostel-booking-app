@@ -25,6 +25,27 @@ export default function LoginScreen(){
 
     }
 
+    const handleLogIn = async () => {
+
+        setServerError('');
+        if (!validate()) return;
+        setSubmitting(true);
+
+        try{
+            await login(email.trim(), password);
+
+        } catch (err){
+            setServerError(err.response?.data?.message || 'Login failed. Please try again.');  
+
+        } finally {
+            setSubmitting(false);
+
+        }
+    };
+
+
+    
+
     
 
     
