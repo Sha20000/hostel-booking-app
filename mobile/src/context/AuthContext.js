@@ -30,13 +30,47 @@ export const AuthProvider = ({children}) => {
         }
     };
 
-    const register = 
+    const register = async (name, email, password) => {
+
+        const {data} = await api.post('/auth/register', {name, email, password});
+        await persistSession(data);
+        return data;
+
+    };
+
+    const login = async (email, password) => {
+      
+        const {data} = await api.post('/auth/login', {email, password});
+        await persistSession(data);
+        return data;
+    };
+
+    const persistSession = async (data) => {
+
+
+        await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('user', JSON.stringify(data));
+        setUser(data);
+
+    };
+
+    const logout = async () => {
+
+        await AsyncStorage.removeItem('token');
+        await AsyncStorage.removeItem('user');
+        setUser(null);
+    };
+
+
+
 
 
 
 
 
 };
+
+export const useAuth = () => useContext(AuthContext);
 
 
 
