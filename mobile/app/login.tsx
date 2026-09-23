@@ -10,7 +10,7 @@ export default function LoginScreen(){
     const {login} = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [serverError, setServerError] = useState('');
 
@@ -44,7 +44,52 @@ export default function LoginScreen(){
     };
 
 
-    
+    return (
+
+        <View style={styles.container}>
+
+             <Text style={styles.title}>Welcome Back</Text>
+
+             <FormInput
+             label="Email"
+             placeholder="you@example.com"
+             value={email}
+             onChangeText={setEmail}
+             autoCapitalize="none"
+             keyBoardType="email-address"
+             error={errors.email}
+             />
+
+             <FormInput
+             label="Password"
+             placeholder="••••••••"
+             value={password}
+             onChangeText={setPassword}
+             secureTextEntry
+             error={errors.password}
+              />
+
+            {serverError ? <Text style={styles.serverError}>{serverError}</Text> : null}
+
+            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={submitting}>
+                <Text style={styles.buttonText}>{submitting ? 'Logging in...' : 'Log In'}</Text>
+            </TouchableOpacity>   
+
+            <Link href="/register" style={styles.link}>Don't have an account? Register
+            </Link> 
+                
+              
+
+
+
+        </View>
+
+
+
+
+
+
+    );
 
     
 
@@ -60,3 +105,19 @@ export default function LoginScreen(){
 
 
 }
+
+
+const styles = StyleSheet.create({
+    container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#fff' },
+    title: { fontSize: 26, fontWeight: '700', marginBottom: 24, color: '#111827' },
+    button: {
+      backgroundColor: '#2563eb',
+      borderRadius: 8,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: 8
+    },
+    buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+    serverError: { color: '#dc2626', marginBottom: 12, textAlign: 'center' },
+    link: { marginTop: 20, textAlign: 'center', color: '#2563eb' }
+  });
