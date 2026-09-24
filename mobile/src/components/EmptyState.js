@@ -1,7 +1,7 @@
 import React from "react";
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 
-export default function EmptyState() {
+export default function EmptyState({message= 'Nothing here yet'}) {
     return(
         <View style={styles.container}>
             <Text styles={styles.text}>{message}</Text>
@@ -17,4 +17,3 @@ const styles = StyleSheet.create({
     text: { color: '#6b7280', fontSize: 16, textAlign: 'center' }
   });
 
-  
