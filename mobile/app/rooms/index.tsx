@@ -21,6 +21,8 @@ export default function RoomListScreen(){
         }catch (err){
             console.log('Failed to fetch rooms', err);
         }finally{
+            setLoading(false);
+            setRefreshing(false);
 
         }
     };
