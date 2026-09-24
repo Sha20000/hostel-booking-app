@@ -10,20 +10,18 @@ export default function LoginScreen(){
     const {login} = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errors, setErrors] = useState('');
+    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
     const [submitting, setSubmitting] = useState(false);
     const [serverError, setServerError] = useState('');
 
     
     const validate = () => {
-        
-        const newErrors = {};
+        const newErrors: { email?: string; password?: string } = {};
         if (!email.trim()) newErrors.email = 'Email is required';
         if (!password) newErrors.password = 'Password is required';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
-
-    }
+      };
 
     const handleLogIn = async () => {
 
@@ -71,7 +69,7 @@ export default function LoginScreen(){
 
             {serverError ? <Text style={styles.serverError}>{serverError}</Text> : null}
 
-            <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={submitting}>
+            <TouchableOpacity style={styles.button} onPress={handleLogIn} disabled={submitting}>
                 <Text style={styles.buttonText}>{submitting ? 'Logging in...' : 'Log In'}</Text>
             </TouchableOpacity>   
 
