@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const BASE_URL = 'http://localhost:5050/api';
-export const SERVER_URL = 'http://localhost:5050';
+const BASE_URL = 'https://innovative-clarity-production-bf82.up.railway.app/api';
+export const SERVER_URL = 'https://innovative-clarity-production-bf82.up.railway.app';
 
 
 const api = axios.create({
