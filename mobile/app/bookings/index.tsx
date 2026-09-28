@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
-import {  useFocusEffect } from 'expo-router';
+import { View, FlatList, RefreshControl, StyleSheet, Platform, Alert } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import api from '../../src/services/api';
 import BookingCard from '../../src/components/BookingCard';
 import LoadingSpinner from '../../src/components/LoadingSpinner';
@@ -39,6 +39,34 @@ export default function MyBookingsScreen(){
         fetchBookings();
     };
 
+    const handleCancel = (id: string) => {
+        const doCancel = async () => {
+            try {
+                await api.delete(`/bookings/${id}`);
+                fetchBookings();
+            } catch (err: any) {
+                const message = err.response?.data?.message || 'Failed to cancel booking';
+                if (Platform.OS === 'web') {
+                    window.alert(message);
+                } else {
+                    Alert.alert('Error', message);
+                }
+            }
+        };
+
+        if (Platform.OS === 'web') {
+            if (window.confirm('Are you sure you want to cancel this booking?')) {
+                doCancel();
+            }
+            return;
+        }
+
+        Alert.alert('Cancel Booking', 'Are you sure you want to cancel this booking?', [
+            { text: 'No', style: 'cancel' },
+            { text: 'Yes, Cancel', style: 'destructive', onPress: doCancel }
+        ]);
+    };
+
     if(loading) return <LoadingSpinner/>;
 
 
@@ -47,7 +75,14 @@ export default function MyBookingsScreen(){
       <FlatList
         data={bookings}
         keyExtractor={(item) => item._id}
-        renderItem={({ item }) => <BookingCard booking={item} onPress={() => {}} />}
+        renderItem={({ item }) => (
+          <BookingCard
+            booking={item}
+            onPress={() => {}}
+            onEdit={() => router.push(`/bookings/edit/${item._id}` as any)}
+            onCancel={() => handleCancel(item._id)}
+          />
+        )}
         contentContainerStyle={bookings.length === 0 ? styles.emptyContainer : styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListEmptyComponent={<EmptyState message="You haven't made any bookings yet" />}
