@@ -5,7 +5,7 @@ import { SERVER_URL } from '../services/api';
 export default function RoomCard({ room, onPress }) {
     return (
 
-     <TouchableOpacity style={styles.card} onPress={onPress}>
+     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
         {
 
 
@@ -25,16 +25,9 @@ export default function RoomCard({ room, onPress }) {
         <Text style={[styles.status, room.availabilityStatus === 'Full' ? styles.full : styles.available]}>
           {room.availabilityStatus} ({room.currentOccupancy}/{room.capacity})
           </Text>
+          <Text style={styles.viewDetails}>View Details →</Text>
         </View>
      </TouchableOpacity>
-
-
-
-
-
-
-
-
 
     );
 }
@@ -58,7 +51,6 @@ const styles = StyleSheet.create({
     roomType: { fontSize: 13, color: '#6b7280', marginTop: 2 },
     status: { fontSize: 12, fontWeight: '600', marginTop: 6 },
     available: { color: '#059669' },
-    full: { color: '#dc2626' }
+    full: { color: '#dc2626' },
+    viewDetails: { fontSize: 12, fontWeight: '600', color: '#2563eb', marginTop: 6 }
   });
-
-

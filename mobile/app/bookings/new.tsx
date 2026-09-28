@@ -1,8 +1,8 @@
-import { useState, useCallback } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
-import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
+import { useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { useLocalSearchParams, router } from 'expo-router';
 import api from '../../src/services/api';
-import FormInput from '../../src/components/FormInput';
+import DatePickerField from '../../src/components/DatePickerField';
 
 
 export default function BookingRequestScreen(){
@@ -10,21 +10,21 @@ export default function BookingRequestScreen(){
     const { roomId } = useLocalSearchParams<{roomId: string}>();
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [errors, setErrors] = useState<{ name?: string; email?: string; password?: string; startDate?: string; endDate?: string }>({});
+    const [errors, setErrors] = useState<{ startDate?: string; endDate?: string }>({});
     const [submitting,setSubmitting] = useState(false);
     const [serverError, setServerError] = useState('');
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const validate = () => {
-    
+
     const newErrors: { startDate?: string; endDate?: string } = {};
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-    if (!dateRegex.test(startDate)) newErrors.startDate = 'Use format YYYY-MM-DD';
-    if (!dateRegex.test(endDate)) newErrors.endDate = 'Use format YYYY-MM-DD';
-    if (dateRegex.test(startDate) && dateRegex.test(endDate) && new Date(startDate) >= new Date(endDate)) {
+    if (!startDate) newErrors.startDate = 'Please select a start date';
+    if (!endDate) newErrors.endDate = 'Please select an end date';
+    if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
       newErrors.endDate = 'End date must be after start date';
-
     }
 
     setErrors(newErrors);
@@ -33,7 +33,7 @@ export default function BookingRequestScreen(){
 
 
   const handleSubmit = async () => {
-       
+
     setServerError('');
     if(!validate()) return;
     setSubmitting(true);
@@ -49,32 +49,26 @@ export default function BookingRequestScreen(){
         setSubmitting(false);
 
     }
-
-
-
-
-
-
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Request a Booking</Text>
 
-      <FormInput
+      <DatePickerField
         label="Start Date"
-        placeholder="YYYY-MM-DD"
         value={startDate}
-        onChangeText={setStartDate}
+        onChange={setStartDate}
         error={errors.startDate}
+        minimumDate={today}
       />
 
-      <FormInput
+      <DatePickerField
         label="End Date"
-        placeholder="YYYY-MM-DD"
         value={endDate}
-        onChangeText={setEndDate}
+        onChange={setEndDate}
         error={errors.endDate}
+        minimumDate={startDate ? new Date(startDate) : today}
       />
 
       {serverError ? <Text style={styles.serverError}>{serverError}</Text> : null}
@@ -83,13 +77,7 @@ export default function BookingRequestScreen(){
         <Text style={styles.buttonText}>{submitting ? 'Submitting...' : 'Submit Request'}</Text>
       </TouchableOpacity>
     </View>
-  );  
-
-
-
-
-
-
+  );
 };
 
 const styles = StyleSheet.create({
@@ -105,11 +93,3 @@ const styles = StyleSheet.create({
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   serverError: { color: '#dc2626', marginBottom: 12, textAlign: 'center' }
 });
-
-
-
-
-
-
-
-

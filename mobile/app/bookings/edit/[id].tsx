@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { router, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import api from '../../../src/services/api';
-import FormInput from '../../../src/components/FormInput';
+import DatePickerField from '../../../src/components/DatePickerField';
 import LoadingSpinner from '../../../src/components/LoadingSpinner';
 
 export default function EditBookingScreen() {
@@ -13,6 +13,9 @@ export default function EditBookingScreen() {
   const [errors, setErrors] = useState<{ startDate?: string; endDate?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState('');
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const fetchBooking = async () => {
     try {
@@ -34,11 +37,10 @@ export default function EditBookingScreen() {
 
   const validate = () => {
     const newErrors: { startDate?: string; endDate?: string } = {};
-    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
 
-    if (!dateRegex.test(startDate)) newErrors.startDate = 'Use format YYYY-MM-DD';
-    if (!dateRegex.test(endDate)) newErrors.endDate = 'Use format YYYY-MM-DD';
-    if (dateRegex.test(startDate) && dateRegex.test(endDate) && new Date(startDate) >= new Date(endDate)) {
+    if (!startDate) newErrors.startDate = 'Please select a start date';
+    if (!endDate) newErrors.endDate = 'Please select an end date';
+    if (startDate && endDate && new Date(startDate) >= new Date(endDate)) {
       newErrors.endDate = 'End date must be after start date';
     }
 
@@ -67,20 +69,20 @@ export default function EditBookingScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Edit Booking Dates</Text>
 
-      <FormInput
+      <DatePickerField
         label="Start Date"
-        placeholder="YYYY-MM-DD"
         value={startDate}
-        onChangeText={setStartDate}
+        onChange={setStartDate}
         error={errors.startDate}
+        minimumDate={today}
       />
 
-      <FormInput
+      <DatePickerField
         label="End Date"
-        placeholder="YYYY-MM-DD"
         value={endDate}
-        onChangeText={setEndDate}
+        onChange={setEndDate}
         error={errors.endDate}
+        minimumDate={startDate ? new Date(startDate) : today}
       />
 
       {serverError ? <Text style={styles.serverError}>{serverError}</Text> : null}
