@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { SERVER_URL } from '../services/api';
 
 export default function RoomCard({ room, onPress }) {
     return (
@@ -9,7 +10,7 @@ export default function RoomCard({ room, onPress }) {
 
 
             room.image?(
-                <Image source={{uri:room.image}} style={styles.image}/>
+                <Image source={{uri:`${SERVER_URL}${room.image}`}} style={styles.image}/>
             ):(
                 <View style={[styles.image, styles.imagePlaceholder]}>
                     <Text style={styles.placeholderText}>No image</Text>

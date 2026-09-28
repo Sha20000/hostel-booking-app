@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Link } from "expo-router";
+import { Link,router } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import FormInput from "../src/components/FormInput";
 
@@ -32,7 +32,8 @@ export default function RegisterScreen(){
         setSubmitting(true);
 
         try{
-            await register(email.trim(), password);
+            await register(name.trim(),email.trim(), password);
+            router.replace('/rooms');
 
         } catch (err){
             setServerError(err.response?.data?.message || 'Registration failed. Please try again.');  
@@ -45,7 +46,7 @@ export default function RegisterScreen(){
 
     return(
 
-        <View style={styles.container}>
+      <View style={styles.container}>
       <Text style={styles.title}>Create an account</Text>
 
       <FormInput

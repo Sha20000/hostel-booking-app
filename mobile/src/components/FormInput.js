@@ -1,15 +1,14 @@
 import React from "react";
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { TextInput } from "react-native-gesture-handler";
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 
 
 
-export default function FormInput({ label, error, ...props}) {
+export default function FormInput({ label, error = null, ...props}) {
 
     return(
 
         <View style={styles.wrapper}>
-            {label? <Text style={style.label}>{label}</Text> :null}
+            {label? <Text style={styles.label}>{label}</Text> :null}
             <TextInput style={[styles.input, error ? styles.inputError : null]} 
             placeholderTextColor="#9ca3af"
             {...props} />

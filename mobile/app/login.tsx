@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { Link } from "expo-router";
+import { router, Link } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import LoadingSpinner from "../src/components/LoadingSpinner";
 import FormInput from "../src/components/FormInput";
@@ -31,6 +31,7 @@ export default function LoginScreen(){
 
         try{
             await login(email.trim(), password);
+            router.replace('/rooms');
 
         } catch (err){
             setServerError(err.response?.data?.message || 'Login failed. Please try again.');  
@@ -54,7 +55,7 @@ export default function LoginScreen(){
              value={email}
              onChangeText={setEmail}
              autoCapitalize="none"
-             keyBoardType="email-address"
+             keyboardType="email-address"
              error={errors.email}
              />
 
@@ -74,6 +75,9 @@ export default function LoginScreen(){
             </TouchableOpacity>   
 
             <Link href="/register" style={styles.link}>Don't have an account? Register
+            </Link>
+
+            <Link href="/admin-login" style={styles.link}>Admin? Login here
             </Link> 
                 
               

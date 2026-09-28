@@ -1,22 +1,26 @@
 import { useState, useCallback } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
 import { useLocalSearchParams, router, useFocusEffect } from 'expo-router';
 import api from '../../src/services/api';
+import { SERVER_URL } from '../../src/services/api';
 import LoadingSpinner from '../../src/components/LoadingSpinner';
+import { useAuth } from '../../src/context/AuthContext';
 
 export default function RoomDetailsScreen(){
 
     const { id } = useLocalSearchParams<{id: string}>();
+    const { user } = useAuth();
     const [room,setRoom] = useState<any>(null);
     const [loading,setLoading] = useState(true);
+    const [deleting, setDeleting] = useState(false);
 
-    const fetchRooms = async () => {
+    const fetchRoom = async () => {
         try{
-            const { data } = await api.get('/rooms');
+            const { data } = await api.get(`/rooms/${id}`);
             setRoom(data);
 
         }catch (err){
-            console.log('Failed to fetch rooms', err);
+            console.log('Failed to fetch room', err);
         }finally{
             setLoading(false);
 
@@ -25,10 +29,55 @@ export default function RoomDetailsScreen(){
 
     useFocusEffect(
         useCallback(()=>{
-            fetchRooms();
+            fetchRoom();
         },[id])
     );
 
+
+    const performDelete = async () => {
+        setDeleting(true);
+        try {
+            await api.delete(`/rooms/${id}`);
+            if (Platform.OS === 'web') {
+                window.alert('Room deleted successfully');
+            } else {
+                Alert.alert('Deleted', 'Room deleted successfully');
+            }
+            router.replace('/rooms');
+        } catch (err: any) {
+            const message = err.response?.data?.message || 'Failed to delete room';
+            if (Platform.OS === 'web') {
+                window.alert(message);
+            } else {
+                Alert.alert('Error', message);
+            }
+        } finally {
+            setDeleting(false);
+        }
+    };
+
+    const handleDelete = () => {
+        if (Platform.OS === 'web') {
+            const confirmed = window.confirm(`Are you sure you want to delete Room ${room.roomNumber}? This cannot be undone.`);
+            if (confirmed) {
+                performDelete();
+            }
+            return;
+        }
+
+        Alert.alert(
+            'Delete Room',
+            `Are you sure you want to delete Room ${room.roomNumber}? This cannot be undone.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: performDelete
+                }
+            ]
+        );
+    };
 
     if(loading || !room) return <LoadingSpinner/>
 
@@ -37,7 +86,7 @@ export default function RoomDetailsScreen(){
     return(
         <ScrollView style={styles.container}>
       {room.image ? (
-        <Image source={{ uri: room.image }} style={styles.image} />
+        <Image source={{ uri: `${SERVER_URL}${room.image}` }} style={styles.image} />
       ) : (
         <View style={[styles.image, styles.imagePlaceholder]}>
           <Text style={styles.placeholderText}>No image available</Text>
@@ -64,6 +113,27 @@ export default function RoomDetailsScreen(){
             {isFull ? 'Room Full — Not Available' : 'Request Booking'}
           </Text>
         </TouchableOpacity>
+
+        {user?.isAdmin ? (
+          <>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => router.push(`/admin/edit-room/${id}` as any)}
+            >
+              <Text style={styles.editButtonText}>Edit Room</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={handleDelete}
+              disabled={deleting}
+            >
+              <Text style={styles.deleteButtonText}>
+                {deleting ? 'Deleting...' : 'Delete Room'}
+              </Text>
+            </TouchableOpacity>
+          </>
+        ) : null}
       </View>
     </ScrollView>
 
@@ -98,7 +168,27 @@ const styles = StyleSheet.create({
       marginTop: 24
     },
     buttonDisabled: { backgroundColor: '#9ca3af' },
-    buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' }
+    buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+    deleteButton: {
+      backgroundColor: '#fff',
+      borderWidth: 1,
+      borderColor: '#dc2626',
+      borderRadius: 8,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: 12
+    },
+    deleteButtonText: { color: '#dc2626', fontSize: 16, fontWeight: '600' },
+    editButton: {
+      backgroundColor: '#fff',
+      borderWidth: 1,
+      borderColor: '#2563eb',
+      borderRadius: 8,
+      paddingVertical: 14,
+      alignItems: 'center',
+      marginTop: 12
+    },
+    editButtonText: { color: '#2563eb', fontSize: 16, fontWeight: '600' }
   });
 
 

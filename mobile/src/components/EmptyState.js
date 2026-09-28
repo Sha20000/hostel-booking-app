@@ -1,5 +1,6 @@
 import React from "react";
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { TextInput, Text } from "react-native-gesture-handler";
 
 export default function EmptyState({message= 'Nothing here yet'}) {
     return(

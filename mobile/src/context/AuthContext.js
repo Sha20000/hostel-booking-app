@@ -45,6 +45,13 @@ export const AuthProvider = ({children}) => {
         return data;
     };
 
+    const adminLogin = async (email, password) => {
+
+        const {data} = await api.post('/auth/admin-login', {email, password});
+        await persistSession(data);
+        return data;
+    };
+
     const persistSession = async (data) => {
 
 
@@ -66,7 +73,7 @@ export const AuthProvider = ({children}) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, loading, register, login, logout }}>
+        <AuthContext.Provider value={{ user, loading, register, login, adminLogin, logout }}>
           {children}
         </AuthContext.Provider>
       );
