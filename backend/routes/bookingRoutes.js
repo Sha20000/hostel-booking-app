@@ -5,6 +5,7 @@ const {
   getMyBookings,
   getAllBookings,
   getBookingById,
+  updateBooking,
   approveBooking,
   rejectBooking,
   cancelBooking
@@ -16,6 +17,7 @@ router.post('/', protect, createBooking);
 router.get('/my', protect, getMyBookings);
 router.get('/', protect, admin, getAllBookings);
 router.get('/:id', protect, getBookingById);
+router.put('/:id', protect, updateBooking);
 router.put('/:id/approve', protect, admin, approveBooking);
 router.put('/:id/reject', protect, admin, rejectBooking);
 router.delete('/:id', protect, cancelBooking);

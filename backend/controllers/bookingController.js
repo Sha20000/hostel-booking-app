@@ -77,6 +77,39 @@ const getBookingById = async (req, res, next) => {
   }
 };
 
+// @desc    Update a pending booking's dates (owner only)
+// @route   PUT /api/bookings/:id
+const updateBooking = async (req, res, next) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    if (!booking) return res.status(404).json({ message: 'Booking not found' });
+
+    if (booking.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized to update this booking' });
+    }
+
+    if (booking.status !== 'Pending') {
+      return res.status(400).json({ message: `Cannot edit a booking that is already ${booking.status}` });
+    }
+
+    const { startDate, endDate } = req.body;
+    if (!startDate || !endDate) {
+      return res.status(400).json({ message: 'startDate and endDate are required' });
+    }
+    if (new Date(startDate) >= new Date(endDate)) {
+      return res.status(400).json({ message: 'startDate must be before endDate' });
+    }
+
+    booking.startDate = startDate;
+    booking.endDate = endDate;
+    await booking.save();
+
+    res.json(booking);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc    Approve a booking (admin)
 // @route   PUT /api/bookings/:id/approve
 const approveBooking = async (req, res, next) => {
@@ -165,6 +198,7 @@ module.exports = {
   getMyBookings,
   getAllBookings,
   getBookingById,
+  updateBooking,
   approveBooking,
   rejectBooking,
   cancelBooking
