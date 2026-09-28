@@ -70,6 +70,41 @@ const loginUser = async (req, res, next) => {
   }
 };
 
+// @desc    Admin-only login
+// @route   POST /api/auth/admin-login
+const adminLoginUser = async (req, res, next) => {
+  try {
+    const errors = validateLoginInput(req.body);
+    if (errors.length) return res.status(400).json({ message: errors.join(', ') });
+
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (!user.isAdmin) {
+      return res.status(403).json({ message: 'This account does not have admin access' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin,
+      token: generateToken(user._id)
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // @desc    Get current logged-in user
 // @route   GET /api/auth/me
 const getMe = async (req, res, next) => {
@@ -80,4 +115,4 @@ const getMe = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getMe };
+module.exports = { registerUser, loginUser, adminLoginUser, getMe };
