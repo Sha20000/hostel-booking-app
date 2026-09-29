@@ -1,4 +1,5 @@
 const Room = require('../models/Room');
+const Booking = require('../models/Booking');
 
 // @desc    Create a room
 // @route   POST /api/rooms
@@ -82,6 +83,14 @@ const deleteRoom = async (req, res, next) => {
   try {
     const room = await Room.findById(req.params.id);
     if (!room) return res.status(404).json({ message: 'Room not found' });
+
+    const existingBookings = await Booking.countDocuments({ roomId: room._id });
+    if (existingBookings > 0) {
+      return res.status(400).json({
+        message: `Cannot delete this room: it has ${existingBookings} booking(s) referencing it. Cancel or reassign those bookings first.`
+      });
+    }
+
     await room.deleteOne();
     res.json({ message: 'Room deleted' });
   } catch (err) {
